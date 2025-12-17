@@ -224,3 +224,5 @@ $RECYCLE.BIN/
 # End of https://www.toptal.com/developers/gitignore/api/python,visualstudiocode,windows
 .env
 features_dataset.npz
+models/
+features/
