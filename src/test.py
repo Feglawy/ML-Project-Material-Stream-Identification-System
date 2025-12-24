@@ -2,6 +2,7 @@ import os
 import cv2 as cv
 import numpy as np
 import joblib
+import pandas as pd
 
 import torch
 from torchvision import models, transforms
@@ -79,3 +80,37 @@ def predict(dataFilePath, modelPath):
         predictions.append(pred)
     return predictions
 
+
+
+def verify_sample(sample_dir_path):
+    y_labals = {
+        0: "glass",
+        1: "paper",
+        2: "cardboard",
+        3: "plastic",
+        4: "metal",
+        5: "trash",
+        6: "unknown"
+    }
+    
+    names = os.listdir(sample_dir_path)
+    
+    output = {
+        "names": names,
+        "prediction": []
+    }
+
+    predictions = predict(sample_dir_path, "./models/knn_model.pkl")
+
+    for i in range(len(predictions)):
+        predictions[i] = y_labals[predictions[i]]
+
+    output["prediction"] = predictions
+
+    df = pd.DataFrame(output)
+    df.to_excel(f"./output.xlsx", index=False)
+
+
+
+if __name__ == "__main__":
+    verify_sample("./sample")

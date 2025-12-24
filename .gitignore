@@ -228,3 +228,6 @@ models/
 features/
 test/
 src/camera_app2.ipynb
+sample/
+*.csv
+*.xlsx
