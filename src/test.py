@@ -35,7 +35,10 @@ def feature_extraction(img):
     return f.view(-1).cpu().numpy()   # (2048,)
 
 
-def _predict(model, feature, threshold = 0.6):
+def _predict(model, feature, threshold):
+    if threshold == None:
+        threshold = 0.6
+
     #  SVM
     if isinstance(model, SVC):
         probs = model.predict_proba(feature)[0]
@@ -57,9 +60,11 @@ def _predict(model, feature, threshold = 0.6):
 def predict(dataFilePath, modelPath):
     predictions = []
 
+    modelPath = "./models/knn_model.pkl"
     data_loaded = joblib.load(modelPath)
     model = data_loaded["model"]
     scaler: StandardScaler = data_loaded["scaler"]
+    rejection_threshold = data_loaded["rejection_threshold"]
 
     img_files = os.listdir(dataFilePath)
 
@@ -75,7 +80,7 @@ def predict(dataFilePath, modelPath):
         feature = feature.reshape(1, -1) 
         feature = scaler.transform(feature)
 
-        pred = _predict(model, feature)
+        pred = _predict(model, feature, rejection_threshold)
 
         predictions.append(pred)
     return predictions
@@ -96,18 +101,19 @@ def verify_sample(sample_dir_path):
     names = os.listdir(sample_dir_path)
     
     output = {
-        "names": names,
-        "prediction": []
+        "ImageName": names,
+        "predictedlabel": []
     }
 
-    predictions = predict(sample_dir_path, "./models/knn_model.pkl")
+    predictions = predict(sample_dir_path, "./models/svm_model.pkl")
 
     for i in range(len(predictions)):
         predictions[i] = y_labals[predictions[i]]
 
-    output["prediction"] = predictions
+    output["predictedlabel"] = predictions
 
     df = pd.DataFrame(output)
+    print(df)
     df.to_excel(f"./output.xlsx", index=False)
 
 
